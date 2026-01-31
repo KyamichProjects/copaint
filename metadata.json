@@ -1,0 +1,5 @@
+{
+  "name": "CoPaint - Real-time Collaborative Canvas",
+  "description": "A modern, collaborative drawing application allowing users to create rooms, join via ID, and draw together in real-time with visible cursors.",
+  "requestFramePermissions": []
+}
