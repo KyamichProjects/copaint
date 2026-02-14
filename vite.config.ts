@@ -7,6 +7,9 @@ export default defineConfig({
     outDir: 'dist',
     emptyOutDir: true,
   },
+  define: {
+    'process.env.API_KEY': JSON.stringify(process.env.API_KEY || "AIzaSyDz_0B_96XDEj7nQNyo1f9whPDhLrdrsrE")
+  },
   server: {
     proxy: {
       '/socket.io': {
