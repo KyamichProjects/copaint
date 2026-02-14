@@ -111,6 +111,7 @@ const App: React.FC = () => {
           users={users}
           isHost={currentUser.isHost}
           onStart={handleStartGame}
+          onExit={handleExit}
         />
       )}
 
