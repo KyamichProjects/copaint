@@ -8,9 +8,10 @@ interface LobbyScreenProps {
   users: User[];
   isHost: boolean;
   onStart: () => void;
+  onExit: () => void;
 }
 
-const LobbyScreen: React.FC<LobbyScreenProps> = ({ roomId, users, isHost, onStart }) => {
+const LobbyScreen: React.FC<LobbyScreenProps> = ({ roomId, users, isHost, onStart, onExit }) => {
   const [copied, setCopied] = React.useState(false);
 
   const copyId = () => {
@@ -27,8 +28,7 @@ const LobbyScreen: React.FC<LobbyScreenProps> = ({ roomId, users, isHost, onStar
 
   const handleLeave = () => {
       if (window.confirm("Вы уверены, что хотите покинуть лобби?")) {
-          socketService.leaveRoom(roomId);
-          window.location.reload(); // Simple refresh to clear state completely
+          onExit();
       }
   };
 
@@ -39,15 +39,15 @@ const LobbyScreen: React.FC<LobbyScreenProps> = ({ roomId, users, isHost, onStar
        </div>
 
        <div className="z-10 w-full max-w-2xl">
-         <div className="bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl">
+         <div className="bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative">
            
-           <div className="text-center mb-6 sm:mb-8 relative">
+           <div className="text-center mb-6 sm:mb-8 relative pt-4">
              <button 
                 onClick={handleLeave}
-                className="absolute left-0 top-0 p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                className="absolute left-0 top-0 p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors z-20 cursor-pointer"
                 title="Покинуть лобби"
              >
-                 <LogOut className="w-5 h-5" />
+                 <LogOut className="w-6 h-6" />
              </button>
              <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Комната ожидания</h2>
              <p className="text-slate-400 text-sm sm:text-base">Поделитесь ID с друзьями</p>
