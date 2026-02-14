@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { socketService } from '../services/socketService';
 import { DrawLine, Point, CursorPosition, User, Tool, DrawShape, FillAction, ChatMessage, CanvasAction, DrawStroke } from '../types';
 import { 
@@ -511,7 +511,8 @@ const PaintCanvas: React.FC<PaintCanvasProps> = ({ roomId, currentUser, onExit }
     const h = canvasRef.current?.height || 600;
 
     try {
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        const genAI = new GoogleGenerativeAI(process.env.API_KEY as string);
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
         
         const promptText = `
           You are a vector drawing assistant.
@@ -521,37 +522,23 @@ const PaintCanvas: React.FC<PaintCanvasProps> = ({ roomId, currentUser, onExit }
           - Keep the number of points reasonable (e.g., 20-50 per stroke).
           - Use vivid colors.
           - The drawing should be centered.
+          
+          Return ONLY a JSON array where each item is an object with:
+          {
+            "color": "hex_string",
+            "width": number,
+            "points": [{"x": number, "y": number}, ...]
+          }
         `;
 
-        const response = await ai.models.generateContent({
-          model: 'gemini-3-flash-preview',
-          contents: promptText,
-          config: {
-            responseMimeType: 'application/json',
-            responseSchema: {
-              type: Type.ARRAY,
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  color: { type: Type.STRING },
-                  width: { type: Type.NUMBER },
-                  points: {
-                    type: Type.ARRAY,
-                    items: {
-                      type: Type.OBJECT,
-                      properties: {
-                        x: { type: Type.NUMBER },
-                        y: { type: Type.NUMBER }
-                      }
-                    }
-                  }
-                }
-              }
+        const result = await model.generateContent({
+            contents: [{ role: 'user', parts: [{ text: promptText }] }],
+            generationConfig: {
+                responseMimeType: "application/json"
             }
-          }
         });
 
-        const textResponse = response.text;
+        const textResponse = result.response.text();
         
         if (textResponse) {
             const strokes = JSON.parse(textResponse);
